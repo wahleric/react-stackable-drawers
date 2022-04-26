@@ -1,22 +1,17 @@
 import { useEffect } from 'react';
 import eventBus from './EventBus';
-
 import './StackableDrawers.css';
-
 
 // TODO:
 // * Add customization to turn on/off animation
 // * Add customization to fix the drawer to the viewport or the nearest positioned ancestor
 
-
-
 function initListeners() {
-	debugger;
 	eventBus.on('openDrawer', (content) => {
 		addDrawer(content);
 	});
-	eventBus.on('closeDrawer', () => {
-		removeDrawer();
+	eventBus.on('closeDrawer', (data) => {
+		removeDrawer(data);
 	});
 }
 
@@ -28,8 +23,9 @@ function replaceDrawer(content) {
 	console.log('replacing drawer');
 }
 
-function removeDrawer() {
+function removeDrawer(data) {
 	console.log('removing drawer');
+	console.log(data);
 }
 
 function StackableDrawers(props) {
@@ -38,7 +34,7 @@ function StackableDrawers(props) {
 	}, []);
 
 	return (
-		<div className="StackableDrawers">
+		<div className="stackable-drawers">
 			dassadsad
 		</div>
 	)
