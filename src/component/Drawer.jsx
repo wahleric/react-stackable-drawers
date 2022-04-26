@@ -6,10 +6,20 @@ function closeDrawer() {
 	eventBus.dispatch('closeDrawer', {test: 'drawer closed'});
 }
 
+// Temp for testing - remove later
+function testOpenDrawer() {
+	eventBus.dispatch('openDrawer', <div>Opened from another drawer</div>);
+}
+
 function Drawer(props) {
+	debugger;
 	return (
 		<div className="drawer">
-			<button className="close-button" onClick={closeDrawer}>X</button>
+			<div className="drawer-buttons">
+				<button className="close-button" onClick={closeDrawer}>X</button>
+				<button className="open-button" onClick={testOpenDrawer}>Open another drawer</button>
+			</div>
+			{props.children}
 		</div>
 	)
 }

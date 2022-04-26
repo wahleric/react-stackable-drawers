@@ -1,0 +1,3 @@
+.stackable-drawers > *:not(:last-child) {
+	visibility: hidden;
+}
