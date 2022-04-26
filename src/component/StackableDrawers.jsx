@@ -3,10 +3,6 @@ import eventBus from './EventBus';
 import Drawer from './Drawer';
 import './StackableDrawers.css';
 
-// TODO:
-// * Add customization to turn on/off animation
-// * Add customization to fix the drawer to the viewport or the nearest positioned ancestor
-
 class StackableDrawers extends React.Component {
 	constructor(props) {
 		super(props);
@@ -38,21 +34,20 @@ class StackableDrawers extends React.Component {
 	}
 
 	removeDrawer(data) {
-		debugger;
-		console.log('removing drawer');
-		console.log(data);
-	}
+		let newDrawers = this.state.drawers || [];
+		newDrawers.pop();
 
-	replaceDrawer(content) {
-		console.log('replacing drawer');
+		this.setState((prevState) => ({
+			drawers: newDrawers
+		}));
 	}
 
 	render() {
 		return (
 			<div className="stackable-drawers">
-				{this.state.drawers.map((drawer, index) =>
+				{this.state.drawers.map((drawerContent, index) =>
 					<Drawer key={index}>
-						{drawer}
+						{drawerContent}
 					</Drawer>
 				)}
 			</div>
