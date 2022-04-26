@@ -6,9 +6,25 @@ import './StackableDrawers.css';
 class StackableDrawers extends React.Component {
 	constructor(props) {
 		super(props);
+
 		this.state = {
-			drawers: []
+			drawers: [],
+			config: this.initConfig(props.options)
 		};
+	}
+
+	/**
+	 * Initializes configuration options based on the passed-in options and
+	 * default values
+	 *
+	 * @param {Object} options the set of options passed to the component
+	 */
+	initConfig(options) {
+		let mount = ['top', 'right', 'bottom', 'left'].includes(options.mount) ? options.mount : 'top';
+
+		return {
+			mount: mount
+		}
 	}
 
 	componentDidMount() {
@@ -19,6 +35,7 @@ class StackableDrawers extends React.Component {
 		eventBus.on('openDrawer', (content) => {
 			this.addDrawer(content);
 		});
+
 		eventBus.on('closeDrawer', (data) => {
 			this.removeDrawer(data);
 		});

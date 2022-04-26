@@ -8,7 +8,7 @@ function closeDrawer() {
 
 // Temp for testing - remove later
 function testOpenDrawer() {
-	eventBus.dispatch('openDrawer', <div>Opened from another drawer</div>);
+	eventBus.dispatch('openDrawer', <div>Opened from another drawer<input type="text"></input></div>);
 }
 
 function Drawer(props) {
