@@ -5,15 +5,14 @@ import Drawer from './component/Drawer';
 
 function testAddDrawer() {
   debugger;
-  eventBus.dispatch('openDrawer', {test: 'testing'});
+  eventBus.dispatch('openDrawer', <div>Hi! First drawer</div>);
 }
 
 function App() {
   return (
     <div className="App">
-      <button onClick={testAddDrawer} />
+      <button onClick={testAddDrawer}>Open Drawer</button>
       <StackableDrawers />
-      <Drawer />
     </div>
   );
 }
