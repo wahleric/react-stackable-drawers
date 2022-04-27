@@ -1,7 +1,39 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import eventBus from './EventBus';
-import Drawer from './Drawer';
 import './StackableDrawers.css';
+
+function Drawer(props) {
+	const drawerRef = useRef();
+	useEffect(() => {
+		requestAnimationFrame(() => {
+			drawerRef.current.classList.add('open');
+		});
+	}, []);
+
+	function closeDrawer() {
+		drawerRef.current.classList.remove('open');
+		setTimeout(() => {
+			eventBus.dispatch('closeDrawer', {test: 'drawer closed'});
+		}, 300);
+	}
+
+	// Temp for testing - remove later
+	function testOpenDrawer() {
+		eventBus.dispatch('openDrawer', <div>Opened from another drawer<input type="text"></input></div>);
+	}
+
+	let options = props.options || {};
+
+	return (
+		<div ref={drawerRef} className={`drawer ${options.mount}`}>
+			<div className="drawer-buttons">
+				<button className="close-button" onClick={closeDrawer}>X</button>
+				<button className="open-button" onClick={testOpenDrawer}>Open another drawer</button>
+			</div>
+			{props.children}
+		</div>
+	)
+}
 
 class StackableDrawers extends React.Component {
 	constructor(props) {
@@ -9,7 +41,7 @@ class StackableDrawers extends React.Component {
 
 		this.state = {
 			drawers: [],
-			config: this.initConfig(props.options)
+			options: this.initOptions(props.options || {})
 		};
 	}
 
@@ -19,11 +51,10 @@ class StackableDrawers extends React.Component {
 	 *
 	 * @param {Object} options the set of options passed to the component
 	 */
-	initConfig(options) {
-		let mount = ['top', 'right', 'bottom', 'left'].includes(options.mount) ? options.mount : 'top';
-
+	initOptions(options) {
 		return {
-			mount: mount
+			mount: ['top', 'right', 'bottom', 'left'].includes(options.mount) ? options.mount : 'top',
+			animate: typeof options.animate === 'boolean' ? options.animate : true
 		}
 	}
 
@@ -42,9 +73,13 @@ class StackableDrawers extends React.Component {
 	}
 
 	addDrawer(content) {
-		let newDrawers = this.state.drawers || [];
-		newDrawers.push(content);
-
+		let newDrawers = [];
+		this.state.drawers.forEach((drawer) => {
+			newDrawers.push(drawer);
+		});
+		newDrawers.push({
+			content: content
+		});
 		this.setState((prevState) => ({
 			drawers: newDrawers
 		}));
@@ -62,11 +97,14 @@ class StackableDrawers extends React.Component {
 	render() {
 		return (
 			<div className="stackable-drawers">
-				{this.state.drawers.map((drawerContent, index) =>
-					<Drawer key={index}>
-						{drawerContent}
-					</Drawer>
-				)}
+				{this.state.drawers.map((drawer, index) => {
+					let drawerOptions = Object.assign({}, this.state.options, drawer.options);
+					return (
+						<Drawer options={drawerOptions} key={index}>
+							{drawer.content}
+						</Drawer>
+					)
+				})}
 			</div>
 		);
 	}
