@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import eventBus from './EventBus';
 import './StackableDrawers.css';
 
 function Drawer(props) {
@@ -13,13 +12,15 @@ function Drawer(props) {
 	function closeDrawer() {
 		drawerRef.current.classList.remove('open');
 		setTimeout(() => {
-			eventBus.dispatch('closeDrawer', {test: 'drawer closed'});
+			drawerBus.closeDrawer();
 		}, 300);
 	}
 
 	// Temp for testing - remove later
 	function testOpenDrawer() {
-		eventBus.dispatch('openDrawer', <div>Opened from another drawer<input type="text"></input></div>);
+		drawerBus.openDrawer(<div>Opened from another drawer<input type="text"></input></div>, {
+			mount: 'right'
+		});
 	}
 
 	let options = props.options || {};
@@ -59,33 +60,32 @@ class StackableDrawers extends React.Component {
 	}
 
 	componentDidMount() {
-		this.initListeners();
+		document.addEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
+		document.addEventListener('stackableDrawerClose', this.removeDrawer.bind(this));
 	}
 
-	initListeners() {
-		eventBus.on('openDrawer', (content) => {
-			this.addDrawer(content);
-		});
-
-		eventBus.on('closeDrawer', (data) => {
-			this.removeDrawer(data);
-		});
+	componentWillUnmount() {
+		document.removeEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
+		document.removeEventListener('stackableDrawerClose', this.removeDrawer.bind(this));
 	}
 
-	addDrawer(content) {
-		let newDrawers = [];
-		this.state.drawers.forEach((drawer) => {
-			newDrawers.push(drawer);
-		});
+	handleDrawerOpenEvent(event) {
+		let data = event.detail || {};
+		this.addDrawer(data.content || <></>, data.options || {});
+	}
+
+	addDrawer(content, options) {
+		let newDrawers = Array.from(this.state.drawers);
 		newDrawers.push({
-			content: content
+			content: content,
+			options: options
 		});
 		this.setState((prevState) => ({
 			drawers: newDrawers
 		}));
 	}
 
-	removeDrawer(data) {
+	removeDrawer() {
 		let newDrawers = this.state.drawers || [];
 		newDrawers.pop();
 
@@ -111,3 +111,18 @@ class StackableDrawers extends React.Component {
 }
 
 export default StackableDrawers;
+
+export const drawerBus = {
+  openDrawer(content, options) {
+    document.dispatchEvent(new CustomEvent('stackableDrawerOpen', {
+      detail: {
+        content: content,
+        options: options
+      }
+    }));
+  },
+
+  closeDrawer() {
+    document.dispatchEvent(new CustomEvent('stackableDrawerClose'));
+  }
+};
