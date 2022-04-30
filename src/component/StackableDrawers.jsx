@@ -61,21 +61,26 @@ class StackableDrawers extends React.Component {
 
 	componentDidMount() {
 		document.addEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
-		document.addEventListener('stackableDrawerClose', this.removeDrawer.bind(this));
+		document.addEventListener('stackableDrawerClose', this.handleDrawerCloseEvent.bind(this));
 	}
 
 	componentWillUnmount() {
 		document.removeEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
-		document.removeEventListener('stackableDrawerClose', this.removeDrawer.bind(this));
+		document.removeEventListener('stackableDrawerClose', this.handleDrawerCloseEvent.bind(this));
 	}
 
 	handleDrawerOpenEvent(event) {
 		let data = event.detail || {};
-		this.addDrawer(data.content || <></>, data.options || {});
+		this.openDrawer(data.content || <></>, data.options || {});
 	}
 
-	addDrawer(content, options) {
-		let newDrawers = Array.from(this.state.drawers);
+	handleDrawerCloseEvent(event) {
+		let data = event.detail || {};
+		this.closeDrawer(data.drawerData);
+	}
+
+	openDrawer(content, options) {
+		let newDrawers = Array.from(this.state.drawers) || [];
 		newDrawers.push({
 			content: content,
 			options: options
@@ -85,9 +90,15 @@ class StackableDrawers extends React.Component {
 		}));
 	}
 
-	removeDrawer() {
-		let newDrawers = this.state.drawers || [];
-		newDrawers.pop();
+	closeDrawer(drawerData) {
+		let newDrawers = Array.from(this.state.drawers) || [];
+		let drawer = newDrawers.pop();
+
+		debugger;
+
+		if (drawer.options && drawer.options.callback instanceof Function) {
+			drawer.options.callback(drawerData);
+		}
 
 		this.setState((prevState) => ({
 			drawers: newDrawers
@@ -115,14 +126,18 @@ export default StackableDrawers;
 export const drawerBus = {
   openDrawer(content, options) {
     document.dispatchEvent(new CustomEvent('stackableDrawerOpen', {
-      detail: {
-        content: content,
-        options: options
-      }
+    	detail: {
+    		content: content,
+    		options: options
+    	}
     }));
   },
 
-  closeDrawer() {
-    document.dispatchEvent(new CustomEvent('stackableDrawerClose'));
+  closeDrawer(drawerData) {
+    document.dispatchEvent(new CustomEvent('stackableDrawerClose', {
+    	detail: {
+    		drawerData: drawerData
+    	}
+    }));
   }
 };
