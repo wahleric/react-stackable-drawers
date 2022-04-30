@@ -37,16 +37,11 @@ export default class StackableDrawers extends React.Component {
         };
     }
 
-    /**
-     * Initializes configuration options based on the passed-in options and
-     * default values
-     *
-     * @param {Object} options the set of options passed to the component
-     */
-     initOptions(options) {
+    initOptions(options) {
         return {
+            animate: typeof options.animate === 'boolean' ? options.animate : true,
             mount: ['top', 'right', 'bottom', 'left'].includes(options.mount) ? options.mount : 'top',
-            animate: typeof options.animate === 'boolean' ? options.animate : true
+            callback: options.callback instanceof Function ? options.callback : null
         };
      }
 
@@ -111,7 +106,6 @@ export default class StackableDrawers extends React.Component {
 }
 
 export const drawerBus = {
-
     openDrawer(content, options) {
         document.dispatchEvent(new CustomEvent('stackableDrawerOpen', {
             detail: {

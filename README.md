@@ -1,70 +1,102 @@
-# Getting Started with Create React App
+# React Stackable Drawers
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A lightweight, easy-to-use React component for creating multiple slide-out drawers
 
-## Available Scripts
+## Initializing the drawer manager
 
-In the project directory, you can run:
+In order to initialize the drawers, you must first include the main drawer manager in your project. This should only be done once inside the project. As such, it is convenient to simply place it at the top level of the project. As an example:
 
-### `npm start`
+```jsx
+import StackableDrawers from 'react-stackable-drawers';
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+function App() {
+  return (
+    <div className="App">
+      <StackableDrawers />
+      ...
+      {App content here}
+      ...
+    </div>
+  );
+}
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+export default App;
+```
 
-### `npm test`
+You can also define a set of default options that will apply to every drawer opened:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```jsx
+<StackableDrawers options={mount: 'bottom'}/>
+```
 
-### `npm run build`
+For a full list of available options, see below
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Using the drawers
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+To access the drawer manager from any component in your project, simply import the `drawerBus` component inside of it:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```jsx
+import { drawerBus} from 'react-stackable-drawers';
+```
 
-### `npm run eject`
+### Opening a drawer
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Once the `drawerBus` has been imported, you can open a drawer and insert content into it by using the `openDrawer` function:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```jsx
+drawerBus.openDrawer(content, options);
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+The first argument to the `openDrawer` function should be the JSX of the content you wish to fill the drawer with. A second optional argument allows you to define options for the specific drawer being opened:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```jsx
+drawerBus.openDrawer(<div>Hello World!</div>, {
+	mount: 'left'
+});
+```
 
-## Learn More
+The list of options available on a per-drawer basis are the same as the ones available at the top-level `StackableDrawers` level. See below for a full list
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Closing a drawer
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+To close the top level drawer, simply use the `drawerBus` again:
 
-### Code Splitting
+```jsx
+drawerBus.closeDrawer();
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Passing data back from a drawer
 
-### Analyzing the Bundle Size
+In some cases, you may want to pass data back to the component that opened a drawer. To do so, when opening the drawer, you can pass a callback function in the drawer options that will be run when the drawer is closed:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```jsx
+drawerBus.openDrawer(<YourComponent />, {
+	mount: 'left',
+	callback: (drawerData) => {
+		console.log('drawerData was passed back from the closed drawer');
+	}
+});
+```
 
-### Making a Progressive Web App
+When closing the drawer, you can pass the data you need into the `closeDrawer` function. This is the data that will be passed into the callback defined above:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```jsx
+drawerBus.closeDrawer({
+	hello: 'World!'
+});
+```
 
-### Advanced Configuration
+## Drawer options
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+There are a number of options available to pass into the drawers. To set the default options for every drawer opened, you can pass your options in when placing the `StackableDrawers` componenet. Afterward, you can also override the default options for a specific drawer by passing them into the `openDrawer` function.
 
-### Deployment
+All of the following options are available in both the top-level drawer manager and on a per-drawer basis:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| animate | boolean | true | Enables/disables the slide animation when a drawer is opened/closed |
+| mount | string | 'top' | If `animate` is set to `true`, This determines what side of the window the drawer will slide in from. Available options are `'top'`, `'right'`, `'bottom'`, or `'left'` |
+| callback | function | none | Defines a callback that will run when a drawer is closed. The callback will receive a single parameter containing the data that was passed into the `closeDrawer` function |
 
-### `npm run build` fails to minify
+## Styling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
