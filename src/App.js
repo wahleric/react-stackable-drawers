@@ -1,9 +1,10 @@
 import './App.css';
-import StackableDrawers from './component/StackableDrawers';
-import eventBus from './component/EventBus';
+import StackableDrawers, { drawerBus } from './component/StackableDrawers';
 
 function testAddDrawer() {
-  eventBus.dispatch('openDrawer', <div>Hi! First drawer</div>);
+  drawerBus.openDrawer(<div>Hi! First drawer</div>, {
+    mount:'left'
+  });
 }
 
 function App() {
