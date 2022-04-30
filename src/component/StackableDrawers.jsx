@@ -17,11 +17,14 @@ function Drawer(props) {
     }
 
     let options = props.options || {};
+    let drawerButtons = !options.showClose ? <></> :
+        (<div className="drawer-buttons">
+            <button className="close-button" onClick={closeDrawer}>X</button>
+        </div>)
+
     return (
         <div ref={drawerRef} className={`drawer ${options.mount}`}>
-            <div className="drawer-buttons">
-            <button className="close-button" onClick={closeDrawer}>X</button>
-        </div>
+            {drawerButtons}
             {props.children}
         </div>
     );
@@ -41,7 +44,8 @@ export default class StackableDrawers extends React.Component {
         return {
             animate: typeof options.animate === 'boolean' ? options.animate : true,
             mount: ['top', 'right', 'bottom', 'left'].includes(options.mount) ? options.mount : 'top',
-            callback: options.callback instanceof Function ? options.callback : null
+            callback: options.callback instanceof Function ? options.callback : null,
+            showClose: typeof options.showClose === 'boolean' ? options.showClose : true
         };
      }
 
