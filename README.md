@@ -97,6 +97,7 @@ All of the following options are available in both the top-level drawer manager 
 | animate | boolean | true | Enables/disables the slide animation when a drawer is opened/closed |
 | mount | string | 'top' | If `animate` is set to `true`, This determines what side of the window the drawer will slide in from. Available options are `'top'`, `'right'`, `'bottom'`, or `'left'` |
 | callback | function | none | Defines a callback that will run when a drawer is closed. The callback will receive a single parameter containing the data that was passed into the `closeDrawer` function |
+| showClose | boolean | true | Determines whether the drawer will have a default close button shown |
 
 ## Styling
 

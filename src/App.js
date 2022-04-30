@@ -4,6 +4,7 @@ import StackableDrawers, { drawerBus } from './component/StackableDrawers';
 function testAddDrawer() {
   drawerBus.openDrawer(<div>Hi! First drawer</div>, {
     mount:'left',
+    showClose: false,
     callback: (drawerData) => {
       console.log('Hey, it worked');
     }
