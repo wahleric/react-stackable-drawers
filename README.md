@@ -101,3 +101,4 @@ All of the following options are available in both the top-level drawer manager 
 
 ## Styling
 
+By default, each drawer has a plain white background and a close button. To hide the close button, you can pass the `showClose: false` option in to your drawer. As for the rest of the drawer, you can use your own content passed in to `openDrawer` to style the drawer as needed.
