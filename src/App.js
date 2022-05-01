@@ -2,9 +2,16 @@ import './App.css';
 import StackableDrawers, { drawerBus } from './component/StackableDrawers';
 
 function testAddDrawer() {
-  drawerBus.openDrawer(<div>Hi! First drawer</div>, {
+  let drawerContent = (
+    <div>
+      Hi! First drawer
+      <input type="text"></input>
+     <button onClick={testAddDrawer}>Open Drawer Again</button>
+    </div>
+  );
+
+  drawerBus.openDrawer(drawerContent, {
     mount:'left',
-    showClose: false,
     callback: (drawerData) => {
       console.log('Hey, it worked');
     }
@@ -15,7 +22,7 @@ function App() {
   return (
     <div className="App">
       <button onClick={testAddDrawer}>Open Drawer</button>
-      <StackableDrawers options={{mount: 'bottom'}}/>
+      <StackableDrawers options={{mount: 'bottom', animate: true}}/>
     </div>
   );
 }

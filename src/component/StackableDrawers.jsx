@@ -1,113 +1,113 @@
 import React, { useRef, useEffect } from 'react';
 import './StackableDrawers.css';
 
-function Drawer(props) {
-    const drawerRef = useRef();
-    useEffect(() => {
-        requestAnimationFrame(() => {
-            drawerRef.current.classList.add('open');
-        });
-    }, []);
-
-    function closeDrawer() {
-        drawerRef.current.classList.remove('open');
-        setTimeout(() => {
-            drawerBus.closeDrawer();
-        }, 300);
-    }
-
-    let options = props.options || {};
-    let drawerButtons = !options.showClose ? <></> :
-        (<div className="drawer-buttons">
-            <button className="close-button" onClick={closeDrawer}>X</button>
-        </div>)
-
-    return (
-        <div ref={drawerRef} className={`drawer ${options.mount}`}>
-            {drawerButtons}
-            {props.children}
-        </div>
-    );
-}
-
 export default class StackableDrawers extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
             drawers: [],
-            options: this.initOptions(props.options || {})
+            options: this.initOptions(Object.assign({}, props.options))
         };
     }
 
+    componentDidMount() {
+        document.addEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
+        document.addEventListener('stackableDrawerClose', this.handleDrawerCloseEvent.bind(this));
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
+        document.removeEventListener('stackableDrawerClose', this.handleDrawerCloseEvent.bind(this));
+    }
+
+    componentDidUpdate() {
+        let topDrawerDef = this.state.drawers[this.state.drawers.length - 1];
+        if (topDrawerDef?.options?.animate) {
+            requestAnimationFrame(() => {
+                this.toggleTopDrawerOpenStyle(true);
+            });
+        }
+    }
+
     initOptions(options) {
+        options = options || {};
         return {
             animate: typeof options.animate === 'boolean' ? options.animate : true,
             mount: ['top', 'right', 'bottom', 'left'].includes(options.mount) ? options.mount : 'top',
             callback: options.callback instanceof Function ? options.callback : null,
             showClose: typeof options.showClose === 'boolean' ? options.showClose : true
         };
-     }
+    }
 
-     componentDidMount() {
-        document.addEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
-        document.addEventListener('stackableDrawerClose', this.handleDrawerCloseEvent.bind(this));
-     }
-
-     componentWillUnmount() {
-        document.removeEventListener('stackableDrawerOpen', this.handleDrawerOpenEvent.bind(this));
-        document.removeEventListener('stackableDrawerClose', this.handleDrawerCloseEvent.bind(this));
-     }
-
-     handleDrawerOpenEvent(event) {
+    handleDrawerOpenEvent(event) {
         let data = event.detail || {};
-        this.openDrawer(data.content || <></>, data.options || {});
-     }
+        this.openDrawer(data.content, data.options || {});
+    }
 
-     handleDrawerCloseEvent(event) {
+    handleDrawerCloseEvent(event) {
         let data = event.detail || {};
         this.closeDrawer(data.drawerData);
-     }
+    }
 
-     openDrawer(content, options) {
+    openDrawer(content, options) {
         let newDrawers = Array.from(this.state.drawers) || [];
         newDrawers.push({
-            content: content,
-            options: options
+            content: content || <></>,
+            options: this.initOptions(Object.assign({}, this.state.options, options))
         });
-        this.setState((prevState) => ({
-            drawers: newDrawers
-        }));
-     }
+        this.setDrawers(newDrawers);
+    }
 
-     closeDrawer(drawerData) {
+    closeDrawer(drawerData) {
         let newDrawers = Array.from(this.state.drawers) || [];
-        let drawer = newDrawers.pop();
-
-        if (drawer.options && drawer.options.callback instanceof Function) {
-            drawer.options.callback(drawerData);
+        let topDrawerDef = newDrawers.pop();
+        if (topDrawerDef) {
+            if (topDrawerDef.options.animate) {
+                this.toggleTopDrawerOpenStyle(false);
+                setTimeout(() => {
+                    this.setDrawers(newDrawers);
+                }, 300);
+            } else {
+                this.setDrawers(newDrawers);
+            }
         }
+    }
 
-        this.setState((prevState) => ({
+    setDrawers(newDrawers) {
+        this.setState(() => ({
             drawers: newDrawers
         }));
-     }
+    }
 
-     render() {
+    toggleTopDrawerOpenStyle(open) {
+        let topDrawerElem = document.querySelector('.drawer:last-child');
+        if (topDrawerElem) {
+            topDrawerElem.classList.toggle('open', open);
+        }
+    }
+
+    render() {
         return (
             <div className="stackable-drawers">
                 {this.state.drawers.map((drawer, index) => {
-                    let drawerOptions = Object.assign({}, this.state.options, drawer.options);
+                    let drawerButtons = !drawer.options.showClose ? <></> : (
+                        <div className="drawer-buttons">
+                            <button className="close-button" onClick={this.closeDrawer.bind(this)}>X</button>
+                        </div>
+                    );
+
                     return (
-                        <Drawer options={drawerOptions} key={index}>
+                        <div key={index} className={`drawer ${drawer.options.mount} ${!drawer.options.animate ? 'open' : ''}`}>
+                            {drawerButtons}
                             {drawer.content}
-                        </Drawer>
+                        </div>
                     );
                 })}
             </div>
         );
     }
-}
+};
 
 export const drawerBus = {
     openDrawer(content, options) {
